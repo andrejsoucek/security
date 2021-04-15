@@ -1,0 +1,200 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<title>Authentication</title>
+
+		<link rel="stylesheet" href="dist/reset.css">
+		<link rel="stylesheet" href="dist/reveal.css">
+		<link rel="stylesheet" href="dist/theme/black.css" id="theme">
+
+		<!-- Theme used for syntax highlighted code -->
+		<link rel="stylesheet" href="plugin/highlight/monokai.css" id="highlight-theme">
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+				<section>
+					<img src="./auth.png" width="150">
+					<h1>Authentication</h1>
+				</section>
+				<section>
+					<section>
+						<img src="./attacker.png" style="width:100px">
+						<h2>Attack vectors</h2>
+					</section>
+					<section>
+						<ul>
+							<li>Brute force</li>
+							<li>Dictionary attack</li>
+							<li>Session management attacks</li>
+						</ul>
+					</section>
+				</section>
+				<section>
+					<section>
+						<img src="./padlock.png" style="width:100px">
+						<h2>Security weakness</h2>
+					</section>
+					<section>
+						<ul>
+							<li>Login forms</li>
+							<li>Login endpoints</li>
+							<li>Stateful applications</li>
+						</ul>
+					</section>
+				</section>
+				<section>
+					<section>
+						<img src="./target.png" style="width:100px">
+						<h2>Impacts</h2>
+					</section>
+					<section>
+						<ul>
+							<li>Identity theft</li>
+							<li>Money laundering</li>
+							<li>Sensitive information disclosure</li>
+						</ul>
+					</section>
+				</section>
+				<section>
+					<section>
+						<img src="./zoom.png" style="width:100px">
+						<h2>Is the application vulnerable?</h2>
+					</section>
+					<section>
+						<ul>
+							<li>Application permits automated attacks - credential stuffing, brute force</li>
+							<li>Application permits weak and well-known passwords</li>
+							<li>Weak or ineffective credential recovery and forgot-password processes</li>
+							<li>Plain text, encrypted, or weakly hashed passwords</li>
+						</ul>
+					</section>
+					<section>
+						<ul>
+							<li>Missing or ineffective multi-factor authentication</li>
+							<li>Session ID exposed in the URL</li>
+							<li>Not rotating session IDs after login</li>
+							<li>Incorrect session IDs rotation (invalidation on logout)</li>
+						</ul>
+					</section>
+				</section>
+				<section>
+					<section>
+						<img src="./safe.png" style="width:100px">
+						<h2>How to prevent?</h2>
+					</section>
+					<section>
+						<ul>
+							<li>Implement multi-factor authentication</li>
+							<li>Do not use any default credentials (admin/admin)</li>
+							<li>Set minimum password length</li>
+						</ul>
+					</section>
+					<section>
+						<ul>
+							<li>Limit or delay failed login attempts, alert when an attack is detected</li>
+							<li>Use a secure session manager (random session ID with high entropy)</li>
+							<li>Do not put session IDs into the URL, invalidate on logout, idle and timeout</li>
+						</ul>
+					</section>
+					<section>
+						<ul>
+							<li>Password rotation and complexity requirements are viewed as encouraging users to use, and reuse, weak passwords</li>
+						</ul>
+						<img src="./password_strength.png" style="width:65%;height:auto;">
+					</section>
+					<section>
+						<style type="text/css">
+							.crossed {
+								margin: 0 auto;
+								width: 30%;
+								position: relative;
+							}
+							.crossed:before, .crossed:after {
+							    position: absolute;
+							    content: '';
+							    background: red;
+							    display: block;
+							    width: 80%;
+							    height: 30px;
+							    -webkit-transform: rotate(-45deg);
+							    transform: rotate(-45deg);
+							    left: 0;
+							    right: 0;
+							    top: 0;
+							    bottom: 0;
+							    margin: auto;
+							}
+							.crossed:after {
+							    -webkit-transform: rotate(45deg);    
+							    transform: rotate(45deg);
+							}
+						</style>
+						<div class="crossed">
+							<img src="./password_strength.png">
+						</div>
+						<ul>
+							<li>Basic and known technique</li>
+							<li>Crackable by tools</li>
+							<li>4 common words are not enough, there should be at least 6 words to be safe</li>
+						</ul>
+					</section>
+					<section>
+						<div>One of the longest cracked passwords</div>
+						<pre style="color:white;background:#383838;padding:5px">Ph'ngului mglw'nafh Cthulhu R'lyeh wgah'nagl fhtagn1</pre>
+						<div>Published in a <a href="https://en.wikipedia.org/wiki/Cthulhu">Wikipedia article</a></div>
+					</section>
+				</section>
+				<section>
+					<h2>Example</h2>
+				</section>
+				<section>
+					<section>
+						<h2>References</h2>
+					</section>
+					<section>
+						<h3>OWASP</h3>
+						<ul>
+							<li><a href="/www-project-proactive-controls/v3/en/c6-digital-identity">Proactive Controls: Implement Digital Identity</a></li>
+							<li><a href="/www-project-application-security-verification-standard">Application Security Verification Standard: V2 Authentication</a></li>
+							<li><a href="/www-project-application-security-verification-standard">Application Security Verification Standard: V3 Session Management</a></li>
+							<li><a href="/www-project-web-security-testing-guide/latest/4-Web_Application_Security_Testing/03-Identity_Management_Testing/README">esting Guide: Identity,</a> <a href="/www-project-web-security-testing-guide/latest/4-Web_Application_Security_Testing/04-Authentication_Testing/README">Authentication</a></li>
+							<li><a href="https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html">Cheat Sheet: Authentication</a></li>
+							<li><a href="https://cheatsheetseries.owasp.org/cheatsheets/Credential_Stuffing_Prevention_Cheat_Sheet.html">Cheat Sheet: Credential Stuffing</a></li>
+							<li><a href="https://cheatsheetseries.owasp.org/cheatsheets/Forgot_Password_Cheat_Sheet.html">OCheat Sheet: Forgot Password</a></li>
+							<li><a href="https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html">Cheat Sheet: Session Management</a></li>
+							<li><a href="/www-project-automated-threats-to-web-applications/">Automated Threats Handbook</a></li>
+						</ul>
+					</section>
+					<section>
+						<h3>Others</strong>
+						<ul>
+							<li><a href="https://pages.nist.gov/800-63-3/sp800-63b.html#memsecret">NIST 800-63b: 5.1.1 Memorized Secrets</a></li>
+							<li><a href="https://cwe.mitre.org/data/definitions/287.html">CWE-287: Improper Authentication</a></li>
+							<li><a href="https://cwe.mitre.org/data/definitions/384.html">CWE-384: Session Fixation</a></li>
+						</ul>
+					</section>
+				</section>
+			</div>
+		</div>
+
+		<script src="dist/reveal.js"></script>
+		<script src="plugin/notes/notes.js"></script>
+		<script src="plugin/markdown/markdown.js"></script>
+		<script src="plugin/highlight/highlight.js"></script>
+		<script>
+			// More info about initialization & config:
+			// - https://revealjs.com/initialization/
+			// - https://revealjs.com/config/
+			Reveal.initialize({
+				hash: true,
+
+				// Learn about plugins: https://revealjs.com/plugins/
+				plugins: [ RevealMarkdown, RevealHighlight, RevealNotes ]
+			});
+		</script>
+	</body>
+</html>
