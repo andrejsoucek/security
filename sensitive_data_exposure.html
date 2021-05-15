@@ -29,8 +29,9 @@
 						<ul>
 							<li>Key steal</li>
 							<li>MitM attacks</li>
-							<li>Steal plain text data from server of while in transit</li>
+							<li>Steal plain text data from server or while in transit</li>
 							<li>Password cracking from DBs</li>
+							<li>Users exposing sensitive data on social networks</li>
 						</ul>
 					</section>
 				</section>
@@ -120,116 +121,105 @@
 						<h2>Example</h2>
 					</section>
 					<section>
-						<h3>Source code</h3>
-						<pre><code data-trim data-noescape>
-String query = 
-"SELECT * FROM accounts 
-WHERE custID='" + request.getParameter("id") + "'";
-  						</code></pre>
-  						<h3>Request</h3>
-						<pre><code data-trim data-noescape>
-http://example.com/app/accountView?id=' or '1'='1
-  						</code></pre>
-  						<h3>Leads to SQL</h3>
-<pre><code data-trim data-noescape>
-SELECT * FROM accounts WHERE custID='' or '1'='1';
-  						</code></pre>
+						<h3>Interior minister's tweet</h3>
+						<img src="./img/tweet.png">
+					</section>
+					<section>
+						<img src="./img/tweet_detail.jpeg" style="width:32%">
+					</section>
+					<section>
+						<video controls src="./img/photoshop.mp4" style="width:80%">
+					</section>
+					<section>
+						<h3>Why is it a problem?</h3>
+						Find it out in this <a href="https://krebsonsecurity.com/2015/10/whats-in-a-boarding-pass-barcode-a-lot/" target="_blank">English</a> or <a href="https://www.czechcrunch.cz/2017/09/cech-michal-spacek-prisel-na-to-jak-odcizit-ucet-klienta-letecke-spolecnosti-z-pouhe-fotky-palubni-vstupenky/" target="_blank">Czech (more detailed)</a> article.
 					</section>
 				</section>
 				<section>
 					<section>
-						<h2>Real Example</h2>
-					</section>
-					<section>
-						<h3>Source code of the <a href="https://exploited.cz/sql/products.php" target="_blank">demo app</a></h3>
-						<pre><code data-trim data-noescape>
-mysql_connect($dbHost, $dbUsername, $dbPassword);
-mysql_select_db($dbSchema);
-mysql_set_charset('utf8');
-if (isset($_GET['id'])) {
-  $id = $_GET['id']; // is this enough?
-  $id = (int) $_GET['id'];  // or this?
-  $id = mysql_real_escape_string($_GET['id']); // or this?
-  $sql = "SELECT id, name, description, image 
-  FROM products WHERE id = $id";
-} else {
-  $sql = "SELECT id, name, description, image 
-  FROM products ORDER BY name";
-}
-$result = mysql_query($sql);
-  						</code></pre>
-					</section>
-					<section>
-						<h3>Blind SQL Injection</h3>
-						<pre><code data-trim data-noescape>
-id=1 AND 1=1
-id=1 AND 1=2
-  						</code></pre>
-					</section>
-					<section>
-						<h3>Number of rows</h3>
-						<pre><code data-trim data-noescape>
-id=1 UNION SELECT 1,DATABASE(),VERSION(),4
-  						</code></pre>
-					</section>
-					<section>
-						<h3>DB info</h3>
-						<pre><code data-trim data-noescape>
-id=1 UNION SELECT 1,DATABASE(),VERSION(),4
-id=1 UNION SELECT 1,table_name,column_name,4 FROM information_schema.columns
-  						</code></pre>
-					</section>
-					<section>
-						<h3>Users</h3>
-						<pre><code data-trim data-noescape>
-id=1 UNION SELECT 1,username,password,4 FROM users
-  						</code></pre>
-					</section>
-				</section>
-				<section>
-					<section>
-						<h2>sqlmap</h2>
+						<h2>Password Cracking Experiment</h2>
 					</section>
 					<section>
 						<ul>
-							<li>Open source penetration testing tool</li>
-							<li>Automates the process of detecting and exploiting SQL injection flaws</li>
+							<li>In 2017 Mall.cz has been pwned.</li>
+							<li>Data containing 700K+ emails and phone numbers AND 766 421 passwords in plain text leaked.</li>
+							<li>Did mall.cz store passwords in plain text or were the passwords cracked?</li>
+							<li>How difficult would it be to crack all these passwords?</li>
 						</ul>
 					</section>
 					<section>
-						<h3>Demo</h3>
-						<pre><code data-trim data-noescape>
-python sqlmap.py -u "https://exploited.cz/sql/products.php?id=1" -p id
-python sqlmap.py -u "https://exploited.cz/sql/products.php?id=1" -p id --dump-all
-  						</code></pre>
+						<ul>
+							<li>Back then, the best GPU for cracking was NVIDIA GeForce GTX 1080 Ti.</li>
+							<ul>
+								<li>Create candidate, compare with created password hashes, get the password.</li>
+								<li>Computes 31 billion MD5 hashes/sec.</li>
+								<li>GTX 1080 is 20% less performant.</li>
+							</ul>
+							<li>Where to get the <i>founders edition</i> for running 24/7?</li>
+						</ul>
+					</section>
+					<section>
+						<h3>Use the cloud!</h3>
+						<ul>
+							<li>AWS</li>
+							<ul>
+								<li>NVIDIA Tesla K80 v p2.16xlarge instance with 16× GPU for $14,4/h on-demand, $2,52/h spot</li>
+								<li>NVIDIA Tesla M60 v g3.16xlarge instance with 4× GPU for $4,56/h on-demand, $1,35/h spot</li>
+							</ul>
+							<li>Testla K80 vs. GTX 1080 Ti
+							<ul>
+								<li>1× Tesla K80: 4558,4 MH/s, p2.16xlarge instance with 16× GPU = 72,9 GH/s</li>
+								<li>1× GTX 1080: 24 809,8 MH/s</li>
+							</ul>
+						</ul>
+					</section>
+					<section>
+						<h3>Let's try it</h3>
+						<ul>
+							<li>All 381 908 unique passwords were hashed by MD5 and tried to be cracked.</li>
+							<li>Two most known wordlists were used (rockyou.txt and phpbb.txt)</li>
+							<li>Basic <a href="https://github.com/hashcat/hashcat">hashcat</a> rules were used with list of czech words, names and surnames</li>
+							<li>Combinations were used (names + surnames)</li>
+							<li>Brute force for 8-12 lowercase chars + numbers were used</li>
+							<li><a href="https://github.com/hashcat/princeprocessor">PRINCE</a> attack was used (combining words from one wordlist)</li> 
+						</ul>
+					</section>
+					<section>
+						<h3>Results</h3>
+						<ul>
+							<li>165K (43 %) of passwords were cracked in 45 minutes.</li>
+							<li>Almost all passwords were cracked in 12 hours (935 passwords left).</li>
+							<li>Even passwords which were not part of any wordlist were cracked.</li>
+							<ul>
+								<li>čokoládamilka - was in wordlist without diacritics</li>
+								<li>Marketa19.. - name + number + 2 dots</li>
+								<li>soyouitknow - 4 english words from wordlists</li>
+								<li>lockap7gia - lock + random chars</li>
+							</ul>
+						</ul>
+					</section>
+					<section>
+						<h3>Verdict</h3>
+						<ul>
+							<li>Passwords could leak hashed and be cracked afterwards.</li>
+							<li>Mall.cz says the data come from the tiem when they were using MD5 hashing.</li>
+							<li>They started using SHA-1 with salt.</li>
+							<ul>
+								<li>It would take more time because SHA-1 is much slower and salt is variable.</li>
+								<li>Now they use bcrypt - it wouldn't be possible to crack majority of the passwords.</li>
+								<ul>
+									<li>GTX 1080 Ti - 646 H/s in case of bcrypt with 2^10 iterations</li>
+								</ul>
+							</ul>
+						</ul>
 					</section>
 				</section>
 				<section>
 					<section>
 						<h2>References</h2>
-					</section>
-					<section>
-						<h3>OWASP</h3>
 						<ul>
-							<li><a href="/www-project-proactive-controls/v3/en/c3-secure-database">Proactive Controls: Secure Database Access</a></li>
-							<li><a href="/www-project-application-security-verification-standard">ASVS: V5 Input Validation and Encoding</a></li>
-							<li><a href="/www-project-web-security-testing-guide/latest/4-Web_Application_Security_Testing/07-Input_Validation_Testing/05-Testing_for_SQL_Injection">esting Guide: SQL Injection</a></li>
-							<li><a href="/www-project-web-security-testing-guide/latest/4-Web_Application_Security_Testing/07-Input_Validation_Testing/12-Testing_for_Command_Injection">Command Injection</a> and <a href="/www-project-web-security-testing-guide/latest/4-Web_Application_Security_Testing/07-Input_Validation_Testing/05.7-Testing_for_ORM_Injection">ORM Injection</a></li>
-							<li><a href="https://cheatsheetseries.owasp.org/cheatsheets/Injection_Prevention_Cheat_Sheet.html">Cheat Sheet: Injection Prevention</a></li>
-							<li><a href="https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html">Cheat Sheet: SQL Injection Prevention</a></li>
-							<li><a href="https://cheatsheetseries.owasp.org/cheatsheets/Query_Parameterization_Cheat_Sheet.html">Cheat Sheet: Query Parameterization</a></li>
-							<li><a href="/www-project-automated-threats-to-web-applications/">Automated Threats to Web Applications – OAT-014</a></li>
-						</ul>
-					</section>
-					<section>
-						<h3>Others</strong>
-						<ul>
-							<li><a href="https://cwe.mitre.org/data/definitions/77.html">CWE-77: Command Injection</a></li>
-							<li><a href="https://cwe.mitre.org/data/definitions/89.html">CWE-89: SQL Injection</a></li>
-							<li><a href="https://cwe.mitre.org/data/definitions/564.html">CWE-564: Hibernate Injection</a></li>
-							<li><a href="https://cwe.mitre.org/data/definitions/917.html">CWE-917: Expression Language Injection</a></li>
-							<li><a href="https://portswigger.net/kb/issues/00101080_serversidetemplateinjection">PortSwigger: Server-side template injection</a></li>
-							<li><a href="https://www.michalspacek.cz/">Michal Špaček</a>
+							<li><a href="https://owasp.org/www-project-top-ten/2017/A3_2017-Sensitive_Data_Exposure">OWASP</a></li>
+							<li><a href="https://www.michalspacek.cz/">Michal Špaček</a></li>
 						</ul>
 					</section>
 				</section>
