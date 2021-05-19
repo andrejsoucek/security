@@ -1,0 +1,173 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<title>Sensitive Data Exposure</title>
+
+		<link rel="stylesheet" href="dist/reset.css">
+		<link rel="stylesheet" href="dist/reveal.css">
+		<link rel="stylesheet" href="dist/theme/black.css" id="theme">
+
+		<!-- Theme used for syntax highlighted code -->
+		<link rel="stylesheet" href="plugin/highlight/monokai.css" id="highlight-theme">
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+				<section>
+					<img src="./img/access-control.png">
+					<h1>Broken Access Control</h1>
+				</section>
+				<section>
+					<section>
+						<img src="./img/attacker.png" style="width:100px">
+						<h2>Attack vectors</h2>
+					</section>
+					<section>
+						<ul>
+							<li>Automated tools can detect the absence, not correct functionality</li>
+							<li>Detectable by manual actions</li>
+						</ul>
+					</section>
+				</section>
+				<section>
+					<section>
+						<img src="./img/padlock.png" style="width:100px">
+						<h2>Security weakness</h2>
+					</section>
+					<section>
+						<ul>
+							<li>Manual testing is the best way to detect access control</li>
+							<li>REST API, controllers, etc.</li>
+						</ul>
+					</section>
+				</section>
+				<section>
+					<section>
+						<img src="./img/target.png" style="width:100px">
+						<h2>Impacts</h2>
+					</section>
+					<section>
+						<ul>
+							<li>User acting as administrator</li>
+							<li>User using privileged funcitons</li>
+							<li>Identity steal</li>
+							<li>Data leak</li>
+						</ul>
+					</section>
+				</section>
+				<section>
+					<section>
+						<img src="./img/zoom.png" style="width:100px">
+						<h2>Is the application vulnerable?</h2>
+					</section>
+					<section>
+						<ul>
+							<li>Application allows bypassing access control checks</li>
+							<ul>
+								<li>By modifying URL</li>
+								<li>By modifying HTML</li>
+								<li>By using an API attack tool/li>
+							</ul>
+							<li>Application allows viewing or editing someone else's account</li>
+						</ul>
+					</section>
+					<section>
+						<ul>
+							<li>Metadata manipulation</li>
+							<ul>
+								<li>Replaying or tampering with a JWT, cookie or hidden form field</li>
+							</ul>
+							<li>CORS misconfiguration</li>
+							<li>Exposing API with missing access controls</li>
+						</ul>
+					</section>
+				</section>
+				<section>
+					<section>
+						<img src="./img/safe.png" style="width:100px">
+						<h2>How to prevent?</h2>
+					</section>
+					<section>
+						<ul>
+							<li>Enforce policy such that users cannot act outside of their permissions</li>
+							<li>MUST BE ENFORCED IN TRUSTED SERVER-SIDE CODE</li>
+							<li>Deny by default (whitelist)</li>
+							<li>Disable web server directory listing</li>
+						</ul>
+					</section>
+					<section>
+						<ul>
+							<li>Log access control failures, alert admins when appropriate (repeated failures)</li>
+							<li>Rate limit API and controller access (minimize harm from automated tools)</li>
+							<li>Invalidate JWT tokens on the server after logout</li>
+							<li>Developers and QA should include access control tests</li>
+						</ul>
+					</section>
+				</section>
+				<section>
+					<section>
+						<h2>Example</h2>
+					</section>
+					<section>
+						<h3>Source code</h3>
+						<pre><code data-trim data-noescape>
+public function renderMap(?int $id): void
+{
+    if ($id !== null) {
+        if (isset($this->getTracks()[$id])) {
+            $this->template->trackJson = $this->getTracks()[$id]->getTrack();
+        } else {
+            $this->redirect('Tracks:');
+        }
+    } else {
+        $this->template->trackJson = null;
+    }
+}
+  						</code></pre>
+  						<p>Missing track ownership check!</p>
+					</section>
+					<section>
+						<h3>Get track ID 1</h3>
+						<pre><code data-trim data-noescape>
+http://example.tld/map/1
+  						</code></pre>
+
+						<pre><code data-trim data-noescape>
+$this->getTracks()[$id]->getUserId() === $this->getUser()->getId()
+  						</code></pre>
+					</section>
+				</section>
+				<section>
+					<section>
+						<h2>References</h2>
+					</section>
+					<section>
+						<h2>References</h2>
+						<ul>
+							<li><a href="https://owasp.org/www-project-top-ten/2017/A5_2017-Broken_Access_Control">OWASP</a></li>
+						</ul>
+					</section>
+				</section>
+			</div>
+		</div>
+
+		<script src="dist/reveal.js"></script>
+		<script src="plugin/notes/notes.js"></script>
+		<script src="plugin/markdown/markdown.js"></script>
+		<script src="plugin/highlight/highlight.js"></script>
+		<script>
+			// More info about initialization & config:
+			// - https://revealjs.com/initialization/
+			// - https://revealjs.com/config/
+			Reveal.initialize({
+				hash: true,
+
+				// Learn about plugins: https://revealjs.com/plugins/
+				plugins: [ RevealMarkdown, RevealHighlight, RevealNotes ]
+			});
+		</script>
+	</body>
+</html>
