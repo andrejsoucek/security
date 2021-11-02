@@ -1,0 +1,170 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<title>Cross-Site Scripting (XSS)</title>
+
+		<link rel="stylesheet" href="dist/reset.css">
+		<link rel="stylesheet" href="dist/reveal.css">
+		<link rel="stylesheet" href="dist/theme/black.css" id="theme">
+
+		<!-- Theme used for syntax highlighted code -->
+		<link rel="stylesheet" href="plugin/highlight/monokai.css" id="highlight-theme">
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+				<section>
+					<img src="./img/xss.png" style="width:100px">
+					<h1>Cross-Site Scripting<br>(XSS)</h1>
+				</section>
+				<section>
+					<section>
+						<img src="./img/attacker.png" style="width:100px">
+						<h2>Attack vectors</h2>
+					</section>
+					<section>
+						<ul>
+							<li>Reflected XSS - unvalidated and unescaped user input is part of HTML output</li>
+							<li>Stored XSS - application stores unsanitized user input which is viewed later by another user</li>
+							<li>DOM Based XSS - modying the DOM in victim's browser</li>
+						</ul>
+					</section>
+					<section>
+                        <h3>Reflected XSS</h3>
+						<ul>
+							<li>Suppose a search function:<br><pre><code data-trim data-noescape>https://insecure-website.com/search?term=gift</code></pre></li>
+							<li>The application echoes the supplied search term in the response to this URL:<br><pre><code data-trim data-noescape>&lt;p&gt;You searched for: gift&lt;/p&gt;</code></pre></li>
+							<li>Example:<br><pre style="width:100%"><code data-trim data-noescape>https://insecure-website.com/search?term=&lt;script&gt;code&lt;/script&gt;</code></pre></li>
+						</ul>
+					</section>
+					<section>
+                        <h3>Stored XSS</h3>
+                        <img src="./img/chat_xss.png">
+					</section>
+					<section>
+                        <h3>DOM Based XSS</h3>
+                        <pre><code>&lt;HTML&gt;
+&lt;TITLE&gt;Welcome!&lt;/TITLE&gt;
+Hi
+&lt;SCRIPT&gt;
+var pos=document.URL.indexOf("name=")+5;
+document.write(
+    document.URL.substring(pos,document.URL.length)
+);
+&lt;/SCRIPT&gt;
+&lt;/HTML&gt;
+</code></pre>
+					</section>
+				</section>
+				<section>
+					<section>
+						<img src="./img/padlock.png" style="width:100px">
+						<h2>Security weakness</h2>
+					</section>
+					<section>
+						<ul>
+							<li>XSS can be found in around two third of all applications</li>
+							<li>It is possible to find some XSS problems by automated tools</li>
+							<li>There are freely available exploitation frameworks</li>
+						</ul>
+					</section>
+				</section>
+				<section>
+					<section>
+						<img src="./img/target.png" style="width:100px">
+						<h2>Impacts</h2>
+					</section>
+					<section>
+						<ul>
+							<li>Session stealing</li>
+							<li>Account takeover</li>
+							<li>Multi-factor authentication bypass</li>
+							<li>Malicious software donwloads</li>
+							<li>Key logging</li>
+						</ul>
+					</section>
+				</section>
+				<section>
+					<section>
+						<img src="./img/zoom.png" style="width:100px">
+						<h2>Is the application vulnerable?</h2>
+					</section>
+					<section>
+						<ul>
+							<li>Using a framework which does not escape XSS by design</li>
+							<li>Not escaping untrusted HTTP request data</li>
+                            <li>Not using context-sensitive encoding</li>
+                            <li>Not using CSP headers</li>
+						</ul>
+					</section>
+				</section>
+				<section>
+					<section>
+						<img src="./img/safe.png" style="width:100px">
+						<h2>How to prevent?</h2>
+					</section>
+					<section>
+						<ul>
+							<li>Use frameworks and template systems which handle XSS by desing</li>
+							<li>Learn how the framework handles the XSS and cover the use cases which are not covered</li>
+							<li>Escape user input</li>
+							<li>Context sensitive escaping techniques can be applied to browser APIs to prevent DOM XSS</li>
+							<li>Set CSP headers correctly</li>
+						</ul>
+					</section>
+				</section>
+				<section>
+					<section>
+						<h2>Real examples</h2>
+					</section>
+					<section>
+                        <h3>Bitbucket - stored XSS</h3>
+                        <img src="./img/bitbucket1.webp">
+					</section>
+                    <section>
+                        <img src="./img/bitbucket2.webp">
+                    </section>
+					<section>
+                        <h3>LastPass - stored XSS</h3>
+                        <img src="./img/lastpass1.webp">
+					</section>
+                    <section>
+                        <img src="./img/lastpass2.webp">
+                    </section>
+					<section>
+                        <h3>Mall.cz - reflected XSS</h3>
+                        <img src="./img/mall.webp">
+					</section>
+				</section>
+				<section>
+					<section>
+						<h2>References</h2>
+						<ul>
+							<li><a href="https://owasp.org/www-project-top-ten/2017/A3_2017-Sensitive_Data_Exposure">OWASP</a></li>
+							<li><a href="https://www.michalspacek.cz/">Michal Špaček</a></li>
+						</ul>
+					</section>
+				</section>
+			</div>
+		</div>
+
+		<script src="dist/reveal.js"></script>
+		<script src="plugin/notes/notes.js"></script>
+		<script src="plugin/markdown/markdown.js"></script>
+		<script src="plugin/highlight/highlight.js"></script>
+		<script>
+			// More info about initialization & config:
+			// - https://revealjs.com/initialization/
+			// - https://revealjs.com/config/
+			Reveal.initialize({
+				hash: true,
+
+				// Learn about plugins: https://revealjs.com/plugins/
+				plugins: [ RevealMarkdown, RevealHighlight, RevealNotes ]
+			});
+		</script>
+	</body>
+</html>
